@@ -1,7 +1,7 @@
 r'''
 # What is the FSP Toolkit?
 
-The FSP Toolkit is a Python library for the analysis of finical data. I built it to help with projects I am working on 
+The FSP Toolkit is a Python library for the analysis of financial data. I built it to help with projects I am working on 
 for ECE-497 Financial Signal Processing at the Cooper Union taught by Professor Fred Fontaine.
 
 It is designed to provide as much plug and play functionality as possible. The goal is to be able to import the library
