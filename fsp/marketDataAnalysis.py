@@ -5,16 +5,19 @@ import numpy as np
 import matplotlib as plt
 import matplotlib.pyplot as plt
 import math
-
-''' Obtain stock data using the data from Yahoo Finance. 
-- tickers: The list of tickers to be downloaded. 
-- start: The start date of the data.
-- end: The end date of the data.
-- cache: Whether to cache the data or not. If true, the data will be saved to a pickle file and loaded from the pickle file if it exists.
-
-Returns: A dataframe of the stock data.
 '''
+Market Data Analysis
+'''
+
 def get_stock_data(tickers, start, end, cache=True):
+    ''' Obtain stock data using the data from Yahoo Finance. 
+    :param tickers: The list of tickers to be downloaded. 
+    :param start: The start date of the data.
+    :param end: The end date of the data.
+    :param cache: Whether to cache the data or not. If true, the data will be saved to a pickle file and loaded from the pickle file if it exists.
+
+    :return: A dataframe of the stock data.
+    '''
 
     if(cache):
         try:
@@ -37,34 +40,35 @@ def get_stock_data(tickers, start, end, cache=True):
     return stocks
 
 
-''' Calculates the daily risk free rate of return for the given time period, using US 3MONTH T-Bills.
-- start: The start date of the data.
-- end: The end date of the data.
-- days: The number of trading days in a year.
 
-Returns: A dataframe of the risk free rate of return.
-'''
 def get_rf_rate(start, end, days=252):
+    ''' Calculates the daily risk free rate of return for the given time period, using US 3MONTH T-Bills.
+    :param start: The start date of the data.
+    :param end: The end date of the data.
+    :param days: The number of trading days in a year.
+
+    :return: A dataframe of the risk free rate of return.
+    '''
     fed_data= web.DataReader(['TB3SMFFM','FEDFUNDS'],'fred',start,end)
     fed_data['3MO T-BILL'] = fed_data['TB3SMFFM'] + fed_data['FEDFUNDS']
     return (fed_data['3MO T-BILL'].resample(rule='B').ffill().to_frame())/(100*days) # Daily risk-free rate
 
-'''
-Calculates the difference between the prediction of single factor model and the actual return.
 
-$ Y = \alpha + \beta*X $
-$ residuals = Y - (\alpha + \beta \times X)$
-
-- stocks: The pandas dataframe containing the stock data.
-- beta: A list of  beta values for the stocks.
-- alpha: A list of alpha values for the stocks.
-- X: The ticker of the factor used in the model. This is usually the market portfolio. The default vale is '^GSPC' (S&P 500).
-- Y: The list of tickers of the stocks to be used in the model.
-
-Returns: A dataframe of the residuals.
-'''
 def residualCalculator(stocks, beta, alpha, X='^GSPC', Y=None):
+    '''
+    Calculates the difference between the prediction of single factor model and the actual return.
 
+    $$ Y = \\alpha + \\beta*X $$
+    $$ residuals = Y - (\\alpha + \\beta \\times X)$$
+
+    :param stocks: The pandas dataframe containing the stock data.
+    :param beta: A list of  beta values for the stocks.
+    :param alpha: A list of alpha values for the stocks.
+    :param X: The ticker of the factor used in the model. This is usually the market portfolio. The default vale is '^GSPC' (S&P 500).
+    :param Y: The list of tickers of the stocks to be used in the model.
+
+    :return: A dataframe of the residuals.
+    '''
     sys = pd.DataFrame()
     # Calculate Residuals
     # print("beta length: ", len(beta))
@@ -73,15 +77,16 @@ def residualCalculator(stocks, beta, alpha, X='^GSPC', Y=None):
 
     return sys
 
-''' Calculates a single factor model for the given stocks and factor.
-- stocks: The pandas dataframe containing the stock data.
-- X: The ticker of the factor used in the model. This is usually the market portfolio. The default vale is '^GSPC' (S&P 500).
-- Y: The list of tickers of the stocks to be used in the model.
-- cov: The covariance matrix of the stocks. If not provided, the covariance matrix will be calculated from the stocks dataframe.
 
-Returns: A tuple containing the beta, alpha, and residuals.
-'''
 def singleFactorModel(stocks, X='^GSPC', Y=None, cov=None):
+    ''' Calculates a single factor model for the given stocks and factor.
+    :param stocks: The pandas dataframe containing the stock data.
+    :param X: The ticker of the factor used in the model. This is usually the market portfolio. The default vale is '^GSPC' (S&P 500).
+    :param Y: The list of tickers of the stocks to be used in the model.
+    :param cov: The covariance matrix of the stocks. If not provided, the covariance matrix will be calculated from the stocks dataframe.
+
+    :return: A tuple containing the beta, alpha, and residuals.
+    '''
     # Calculate Covariance Matrix
     if cov is None:
         cov= stocks.cov()
@@ -94,16 +99,17 @@ def singleFactorModel(stocks, X='^GSPC', Y=None, cov=None):
     return beta, alpha, residuals
 
 
-''' Calculates the minium variance portfolio for the given stocks.
-- stocks: The pandas dataframe containing the stock data.
-- tickers: The list of tickers of the stocks to be used in the model.
-- cov: The covariance matrix of the stocks. If not provided, the covariance matrix will be calculated from the stocks dataframe.
-- inv_covs: The inverse of the covariance matrix of the stocks. If not provided, the covariance matrix will be calculated from the stocks dataframe.
-- m_ex: The expected return of the stocks. If not provided, the expected return will be calculated from the stocks dataframe, by calculating the mean of returns over the period in question.
 
-Returns: A tuple containing the weights of the minium variance portfolio, the variance of the minium variance portfolio, and the expected return of the minium variance portfolio.
-'''
 def calcMVP(stocks, tickers, cov=None, inv_covs=None, m_ex=None):
+    ''' Calculates the minium variance portfolio for the given stocks.
+    :param stocks: The pandas dataframe containing the stock data.
+    :param tickers: The list of tickers of the stocks to be used in the model.
+    :param cov: The covariance matrix of the stocks. If not provided, the covariance matrix will be calculated from the stocks dataframe.
+    :param inv_covs: The inverse of the covariance matrix of the stocks. If not provided, the covariance matrix will be calculated from the stocks dataframe.
+    :param m_ex: The expected return of the stocks. If not provided, the expected return will be calculated from the stocks dataframe, by calculating the mean of returns over the period in question.
+
+    :return: A tuple containing the weights of the minium variance portfolio, the variance of the minium variance portfolio, and the expected return of the minium variance portfolio.
+    '''
     if cov is None:
         covs = stocks[tickers].cov().values
     if inv_covs is None or cov is None:
@@ -118,16 +124,17 @@ def calcMVP(stocks, tickers, cov=None, inv_covs=None, m_ex=None):
 
     return w_mvp, sigma_mvp, mu_mvp
 
-''' Calculates the Market Portfolio for the given stocks.
-- stocks: The pandas dataframe containing the stock data.
-- tickers: The list of tickers of the stocks to be used in the model.
-- cov: The covariance matrix of the stocks. If not provided, the covariance matrix will be calculated from the stocks dataframe.
-- inv_covs: The inverse of the covariance matrix of the stocks. If not provided, the covariance matrix will be calculated from the stocks dataframe.
-- m_ex: The expected return of the stocks. If not provided, the expected return will be calculated from the stocks dataframe, by calculating the mean of returns over the period in question.
 
-Returns: A tuple containing the weights of the Market Portfolio, the variance of the Market Portfolio, and the expected return of the Market Portfolio.
-'''
 def calcMP(stocks, tickers, covs=None, cov_stocks_inv=None, m_ex=None):
+    ''' Calculates the Market Portfolio for the given stocks.
+    :param stocks: The pandas dataframe containing the stock data.
+    :param tickers: The list of tickers of the stocks to be used in the model.
+    :param cov: The covariance matrix of the stocks. If not provided, the covariance matrix will be calculated from the stocks dataframe.
+    :param inv_covs: The inverse of the covariance matrix of the stocks. If not provided, the covariance matrix will be calculated from the stocks dataframe.
+    :param m_ex: The expected return of the stocks. If not provided, the expected return will be calculated from the stocks dataframe, by calculating the mean of returns over the period in question.
+
+    :return: A tuple containing the weights of the Market Portfolio, the variance of the Market Portfolio, and the expected return of the Market Portfolio.
+    '''
     if covs is None:
         covs = stocks[tickers].cov().values
     if cov_stocks_inv is None or covs is None:
@@ -146,19 +153,19 @@ def calcMP(stocks, tickers, covs=None, cov_stocks_inv=None, m_ex=None):
     return w_mp, sigma_mp, mu_mp
 
 
-'''  Calculates the efficient frontier for the given stocks, with no risk free asset. 
-- stocks: The pandas dataframe containing the stock data.
-- tickers: The list of tickers of the stocks to be used in the model.
-start: The starting point of the efficient frontier. The default value is -0.025
-end: The ending point of the efficient frontier. The default value is 0.025
-step: The number of steps to be included in the efficient frontier. The default value is 2000
-- cov: The covariance matrix of the stocks. If not provided, the covariance matrix will be calculated from the stocks dataframe.
-- inv_covs: The inverse of the covariance matrix of the stocks. If not provided, the covariance matrix will be calculated from the stocks dataframe.
 
-Returns: A list of sigma values, a list of mu values which correspond to the X,Y coordinates of the efficient frontier
-'''
 def calcEfficientFrontier(stocks, tickers, start=-0.025, stop=0.025, step=2000, cov=None, inv_covs=None):
+    '''  Calculates the efficient frontier for the given stocks, with no risk free asset. 
+    :param stocks: The pandas dataframe containing the stock data.
+    :param tickers: The list of tickers of the stocks to be used in the model.
+    start: The starting point of the efficient frontier. The default value is -0.025
+    end: The ending point of the efficient frontier. The default value is 0.025
+    step: The number of steps to be included in the efficient frontier. The default value is 2000
+    :param cov: The covariance matrix of the stocks. If not provided, the covariance matrix will be calculated from the stocks dataframe.
+    :param inv_covs: The inverse of the covariance matrix of the stocks. If not provided, the covariance matrix will be calculated from the stocks dataframe.
 
+    :return: A list of sigma values, a list of mu values which correspond to the X,Y coordinates of the efficient frontier
+    '''
     sigma_ef = []
     mu_ef = np.linspace(-0.025, 0.025, 2000)
     mus = stocks[tickers].mean().values
@@ -182,15 +189,16 @@ def calcEfficientFrontier(stocks, tickers, start=-0.025, stop=0.025, step=2000, 
 
     return sigma_ef, mu_ef
 
-''' Plots the efficient frontier for the given stocks, both with and without a risk free asset.
-- efficientFrontier: The efficient frontier to be plotted. (The output of calcEfficientFrontier)
-- MP: The Market Portfolio to be plotted. (The output of calcMP)
-- MVP: The Minimum Variance Portfolio to be plotted. (The output of calcMVP)
-- ax: The axis to be plotted on. If not provided, a new axis will be created.
 
-Returns: The axis that was plotted on, with the efficient frontier plotted on it.
-'''
 def plotEfficientFrontier(efficientFrontier, MP, MVP, ax=None):
+    ''' Plots the efficient frontier for the given stocks, both with and without a risk free asset.
+    :param efficientFrontier: The efficient frontier to be plotted. (The output of calcEfficientFrontier)
+    :param MP: The Market Portfolio to be plotted. (The output of calcMP)
+    :param MVP: The Minimum Variance Portfolio to be plotted. (The output of calcMVP)
+    :param ax: The axis to be plotted on. If not provided, a new axis will be created.
+
+    :return: The axis that was plotted on, with the efficient frontier plotted on it.
+    '''
     if(ax is None):
         fig = plt.figure(figsize=(10, 10))
         ax = fig.add_subplot(111)
