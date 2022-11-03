@@ -15,7 +15,7 @@ class MonteCarlo:
 
         :param pathDependent: a flag that indicates if the value function is path dependent
         if pathDependent is None, then the value function is derived from the up and down factors,
-        by the formula $V_{n+1} = ( u \\times H \\plus (self.d) \\times (1 - H))$, where $H$ is a random variable
+        by the formula $V_{n+1} = ( u \\times H + (self.d) \\times (1 - H))$, where $H$ is a random variable
         that is 1 with probability $p$ and 0 with probability $1 - p$. 
 
         if pathDependent is True, then the value function V_N will be used. The function V_N must take in a (T, N) array 
