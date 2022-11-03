@@ -31,7 +31,7 @@ class MonteCarlo:
         if(r <= 0):
                 raise ValueError('r must be greater than 0')
 
-        self.r = r + 1
+        self.r = r
         self.pathDependent = pathDependent
 
         if(pathDependent is None):
@@ -117,12 +117,42 @@ class MonteCarlo:
         coin_flips_pos = self.rng.binomial(T, p, M)
         if self.pathDependent is None:
             return S0 * (self.u ** coin_flips_pos) * (self.d ** (T - coin_flips_pos))
-        elif(not self.pathDependent):
+        elif(self.pathDependent is not None and not self.pathDependent):
             return self.V_N(coin_flips_pos)
         else:
             raise ValueError('Path dependent is True, but the value function is path independent. Try using the simulatePathDependent() function')
-            return None
+        
 
+class BAPM:
+
+    @staticmethod
+    def riskNeutralProbability(r, d, u):
+        '''
+        Calculate the risk neutral probability
+
+        :param r: The risk free rate
+        :param d: The down factor
+        :param u: The up factor
+
+        :return: The risk neutral probability of up
+        '''
+        return ((1+r) - d) / (u - d)
+
+    @staticmethod
+    def stepWealthEquation(X0, S0, SN, dn, r):
+        '''
+        Calculate the wealth equation
+
+        :param X0: The initial value of the portfolio 
+        :param S0: The initial stock price
+        :param SN: The stock price at the next step
+        :param dn: the number of shares of each stock in the portfolio
+        :param r: The risk free rate
+
+        :return: The value of the portfolio at the next step
+        '''
+
+        return np.dot(dn, SN) + (1 + r) * (X0 - np.dot(dn, S0))
 
 
 
