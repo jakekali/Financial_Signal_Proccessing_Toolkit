@@ -156,3 +156,19 @@ class BAPM:
 
 
 
+    @staticmethod
+    def backStepWealthEquation(S0, u, d, r):
+        '''
+        Calculate the wealth equation
+
+        :param XN: The value of the portfolio at the step
+        :param SN: The stock price at the next step
+        :param r: The risk free rate
+
+        :return: The initial value of the portfolio 
+        '''
+
+        p_tilde = BAPM.riskNeutralProbability(r, d, u)
+        return  (p_tilde * u * S0 + (1 - p_tilde) * d * S0)/(1 + r)
+
+    
