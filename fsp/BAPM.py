@@ -39,6 +39,50 @@ class BAPM:
 
         return np.linalg.solve(A, b)
 
+    @staticmethod
+    def optionValueFromRiskNeutralMeasure(S0, u, d, r, VH, VL):
+        '''
+        For any option, there is a replicating portfolio that has the same value as the option.
+        This function use the risk neutral measure to calculate the value of the option.
+        This is more computationally efficient than the singleStepReplicatingPortfolio function, however it is
+        more susceptible to numerical errors, and does not provide the number of shares to buy.
+
+        :param S0: The initial value of the underlying stock
+        :param u: The factor the stock will increase if heads
+        :param d: The factor the stock will decrease if tails
+        :param r: The risk free rate
+        :param VH: The value of the option if heads
+        :param VL: The value of the option if tails
+
+        :return: The fair price of the option at the initial time
+        '''
+
+        return 1/(1+r) * (BAPM.riskNeutralProbability(r, d, u) * VH + (1-BAPM.riskNeutralProbability(r, d, u)) * VL)
+
+    @staticmethod
+    def multiStepReplicatingPortfolio(S0, u, d, r, M, VH, VL):
+        '''
+        For any option, there is a replicating portfolio that has the same value as the option.
+
+        :param S0: The initial value of the underlying stock
+        :param u: The factor the stock will increase if heads
+        :param d: The factor the stock will decrease if tails
+        :param r: The risk free rate
+        :param M: The number of periods
+        :param VH: The value of the option if heads
+        :param VL: The value of the option if tails
+
+        :return: A list of tuples containing the the fair price of the option at the initial time, and the number of shares of the underlying stock to buy
+        '''
+        S = S0
+
+        for i in range(M):
+            S, _ = BAPM.singleStepReplicatingPortfolio(S, u, d, r, VH, VL)
+        
+
+        return S
+
+
     
 
 class probabilistic_analysis:
