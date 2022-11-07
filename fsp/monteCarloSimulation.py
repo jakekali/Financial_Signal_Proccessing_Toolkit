@@ -58,7 +58,7 @@ class MonteCarlo:
         Check if the simulation is an arbitrage
         :return: True if the simulation is an arbitrage, False otherwise
         '''
-        return self.r > self.u or self.r < self.d
+        return (1+self.r) > self.u or (1+self.r) < self.d
 
     def simulatePathDependent(self, S0, T, M, p):
         '''
@@ -74,9 +74,9 @@ class MonteCarlo:
 
         if(S0 <= 0):
             raise ValueError('S0 must be positive')
-        if(T < 0 and type(T) != int):
+        if(T < 0 or type(T) != int):
             raise ValueError('The number of periods must must be positive, integer')
-        if(M < 0 and type(M) != int):
+        if(M < 0 or type(M) != int):
             raise ValueError('The number of simulations must be positive, integer')
 
         S = np.zeros((T, M))
@@ -118,57 +118,8 @@ class MonteCarlo:
         if self.pathDependent is None:
             return S0 * (self.u ** coin_flips_pos) * (self.d ** (T - coin_flips_pos))
         elif(self.pathDependent is not None and not self.pathDependent):
-            return self.V_N(coin_flips_pos)
+            return S0* self.V_N(coin_flips_pos)
         else:
             raise ValueError('Path dependent is True, but the value function is path independent. Try using the simulatePathDependent() function')
         
-
-class BAPM:
-
-    @staticmethod
-    def riskNeutralProbability(r, d, u):
-        '''
-        Calculate the risk neutral probability
-
-        :param r: The risk free rate
-        :param d: The down factor
-        :param u: The up factor
-
-        :return: The risk neutral probability of up
-        '''
-        return ((1+r) - d) / (u - d)
-
-    @staticmethod
-    def stepWealthEquation(X0, S0, SN, dn, r):
-        '''
-        Calculate the wealth equation
-
-        :param X0: The initial value of the portfolio 
-        :param S0: The initial stock price
-        :param SN: The stock price at the next step
-        :param dn: the number of shares of each stock in the portfolio
-        :param r: The risk free rate
-
-        :return: The value of the portfolio at the next step
-        '''
-
-        return np.dot(dn, SN) + (1 + r) * (X0 - np.dot(dn, S0))
-
-
-
-    @staticmethod
-    def backStepWealthEquation(S0, u, d, r):
-        '''
-        Calculate the wealth equation
-
-        :param XN: The value of the portfolio at the step
-        :param SN: The stock price at the next step
-        :param r: The risk free rate
-
-        :return: The initial value of the portfolio 
-        '''
-
-        p_tilde = BAPM.riskNeutralProbability(r, d, u)
-        return  (p_tilde * u * S0 + (1 - p_tilde) * d * S0)/(1 + r)
-
     
