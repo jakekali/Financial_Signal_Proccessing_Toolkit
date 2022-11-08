@@ -60,7 +60,7 @@ class BAPM:
         return 1/(1+r) * (BAPM.riskNeutralProbability(r, d, u) * VH + (1-BAPM.riskNeutralProbability(r, d, u)) * VL)
 
     @staticmethod
-    def multiStepReplicatingPortfolio(S0, u, d, r, M, VH, VL):
+    def multiStepReplicatingPortfolio(S0, u, d, r, M):
         '''
         For any option, there is a replicating portfolio that has the same value as the option.
 
@@ -74,13 +74,77 @@ class BAPM:
 
         :return: A list of tuples containing the the fair price of the option at the initial time, and the number of shares of the underlying stock to buy
         '''
-        S = S0
 
-        for i in range(M):
-            S, _ = BAPM.singleStepReplicatingPortfolio(S, u, d, r, VH, VL)
+        return BAPM._recursiveReplicatingPortfolio(u, d, S0, r, path=[], maxPathLength=M)
+
+    @staticmethod
+    def _recursiveReplicatingPortfolio(u, d, S0, r, path=[], maxPathLength=3):
+        '''
+        Helper function for the multiStepReplicatingPortfolio function
+
+        :param u: The factor the stock will increase if heads
+        :param d: The factor the stock will decrease if tails
+        :param S0: The initial value of the underlying stock
+        :param path: The path of the stock price
+
+        :return: A list of tuples containing the the fair price of the option at the initial time, and the number of shares of the underlying stock to buy
+        '''
+
         
 
-        return S
+        if(len(path) != maxPathLength):
+            pathT = path + [0]
+            pathH = path + [1]
+        else:
+            print("\t"*len(path), path, " : ", S0 * BAPM.valueFunctionP(path, d, u))
+            return max(S0 * BAPM.valueFunctionP(path, d, u) - 5, 0), 0 
+
+
+        VH, upf = BAPM._recursiveReplicatingPortfolio(u, d, S0, r, path=pathH, maxPathLength=maxPathLength)
+        VL, dof = BAPM._recursiveReplicatingPortfolio(u, d, S0, r, path=pathT, maxPathLength=maxPathLength)
+
+
+        print("\t"*len(path), "path: ", path, " : ", BAPM.optionValueFromRiskNeutralMeasure(S0, u, d, r, VH, VL), " : ", upf, " : ", dof)
+        print("\t"*len(path), "path: ", path, " : ", BAPM.valueFunctionP(path, d, u), u, d, r, VH, VL)
+        V0, delta = BAPM.singleStepReplicatingPortfolio(S0*BAPM.valueFunctionP(path, d, u), u, d, r, VH, VL)
+        print("\t"*len(path), "path: ",path, " V0: ", V0, " D: ", delta)
+        return V0, delta
+
+
+    @staticmethod
+    def valueFunctionP(path, d, u):
+        '''
+        Calculate the value function for a given path
+
+        :param path: The path to calculate the value function for
+        :param d: The down factor
+        :param u: The up factor
+
+        :return: The value function
+        '''
+        factor = 1
+        for i in path:
+            if i == 0:
+                factor = factor*d
+            elif i == 1:
+                factor = factor*u
+
+        return factor
+
+    @staticmethod
+    def valueFunction(H, D, d, u):
+        '''
+        The value function for a path independent option
+
+        :param H: The number of heads
+        :param D: The number of tails
+        :param d: The down factor
+        :param u: The up factor
+
+        :return: The value of the option
+        '''
+
+        return (u**H) * (d**D)
 
 
     
