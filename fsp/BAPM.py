@@ -32,6 +32,9 @@ class BAPM:
         :return: A tuple containing the fair price of the option at the initial time, and the number of shares of the underlying stock to buy
         '''
 
+        if(VH == VL and VH == 0):
+            return 0, 0
+
         A = np.array([[(1+r), (u-(1+r))*S0], 
                     [(1+r), (d-(1+r))*S0]])
 
@@ -89,8 +92,6 @@ class BAPM:
 
         :return: A list of tuples containing the the fair price of the option at the initial time, and the number of shares of the underlying stock to buy
         '''
-
-        
 
         if(len(path) != maxPathLength):
             pathT = path + [0]
@@ -215,13 +216,13 @@ class probabilistic_analysis:
         if(T < 0 or type(T) != int):
             raise ValueError('The number of periods must must be positive, integer')
 
-
+        K = 5
         SN = 0
         hh = ss.binom(T, p)
-        for k in range(T+1):
+        for k in range(T):
 
             if self.pathDependent is None:
-                SN += S0 * (self.u ** k) * (self.d ** (T - k)) * hh.pmf(k)
+                SN += max(0, (S0 * (self.u ** k) * (self.d ** (T - k))) - K) * hh.pmf(k)
 
             elif(self.pathDependent is not None and not self.pathDependent):
                 SN += S0* self.V_N(k) * hh.pmf(k)
