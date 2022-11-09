@@ -1,7 +1,5 @@
 import numpy as np 
-import sys
-
-from .simulation import *
+from simulation import *
 
 class MonteCarlo(simulation):
     '''
@@ -16,14 +14,6 @@ class MonteCarlo(simulation):
             self.rng = np.random.RandomState()
         else:
             self.rng = rng
-
-
-    def isArbitrage(self):
-        '''
-        Check if the simulation is an arbitrage
-        :return: True if the simulation is an arbitrage, False otherwise
-        '''
-        return (1+self.r) > self.u or (1+self.r) < self.d
 
     def simulatePathDependent(self, S0, T, M, p):
         '''
@@ -44,20 +34,18 @@ class MonteCarlo(simulation):
         if(M < 0 or type(M) != int):
             raise ValueError('The number of simulations must be positive, integer')
 
-        S = np.zeros((T, M))
         coin_flips = self.rng.choice([0, 1], size=(T,M), p=[(1-p),p])
+        S0 = self.stockPrice(len(coin_flips)-sum(coin_flips), sum(coin_flips))
+        V0 = self.V(S0)
 
-        if(self.pathDependent is None):
-            S[0, :] = S0
-            for t in range(1, T):
-                S[t, :] = S[t-1, :] * ((self.u) * coin_flips[t, :] + (self.d) * (1 - coin_flips[t, :]))
+        return S0, V0
+        
 
-            return S
-        if(self.pathDependent):
-            return self.V_N(coin_flips)
-        else:
-            Warning('Path dependent is False, but the value function is path dependent. Using path dependent value function')
-            return self.V_N(np.sum(coin_flips, axis=0))
+
+
+
+
+
 
         
 
