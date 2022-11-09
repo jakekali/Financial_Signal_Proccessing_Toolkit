@@ -2,6 +2,7 @@ import numpy as np
 import scipy.stats as ss
 import sys
 sys.path.append("/home/jacob/code/ECE-478-FSP/FSP-Toolkit/fsp/")
+sys.path.append("../fsp/")
 from simulation import *
 
 class bapm_exact(simulation):
