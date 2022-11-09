@@ -1,52 +1,15 @@
 import numpy as np 
+from simulation import simulation
 
-class MonteCarlo:
+class MonteCarlo(simulation):
     '''
     A Monte Carlo Simulation
     '''
-
-    def __init__(self, r, d=0.5, u=1.5, pathDependent=None, V_N=None, arbitrage='raise', rng=None):
+    def setRNG(self, rng):
         '''
-        Initialize the simulation
-
-        :param r: The risk free rate
-        :param d: The down factor, if pathDependent is not None then this is ignored
-        :param u: The up factor, if pathDependent is not None then this is ignored
-
-        :param pathDependent: a flag that indicates if the value function is path dependent
-        if pathDependent is None, then the value function is derived from the up and down factors,
-        by the formula $V_{n+1} = ( u \\times H + (self.d) \\times (1 - H))$, where $H$ is a random variable
-        that is 1 with probability $p$ and 0 with probability $1 - p$. 
-
-        if pathDependent is True, then the value function V_N will be used. The function V_N must take in a (T, N) array 
-        of simulated coin flips and return a (1, N) array of final values.
-
-        if pathDependent is False, then the value function must take in a (1, N) array indicating the number of heads
-        and return a (1, N) array of final values.
-
-        :param V_N: The value function as described above, in the pathDependent parameter. If pathDependent is None, then this is ignored.
-        :param arbitrage: The behavior when the simulation is an arbitrage. If 'raise', then an exception is raised. If 'ignore', then the simulation is run anyway.
-        :param rng: The random number generator (np.random.RandomState)
+        Set the random number generator
+        :param rng: The random number generator
         '''
-        if(r <= 0):
-                raise ValueError('r must be greater than 0')
-
-        self.r = r
-        self.pathDependent = pathDependent
-
-        if(pathDependent is None):
-            if(d == u):
-                raise ValueError('d and u must be different')
-
-            self.d = d
-            self.u = u
-
-            if(self.isArbitrage() and arbitrage == 'raise'):
-                raise ValueError('Arbitrage detected')
-
-        else:
-            self.V_N = V_N
-
         if(rng is None):
             self.rng = np.random.RandomState()
         else:
