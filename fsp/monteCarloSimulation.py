@@ -35,10 +35,12 @@ class MonteCarlo(simulation):
             raise ValueError('The number of simulations must be positive, integer')
 
         coin_flips = self.rng.choice([0, 1], size=(T,M), p=[(1-p),p])
-        S0 = self.stockPrice(len(coin_flips)-sum(coin_flips), sum(coin_flips))
-        V0 = self.V(S0)
+        print(np.mean(coin_flips))
 
-        return S0, V0
+        SN = self.stockPrice(len(coin_flips)-sum(coin_flips), sum(coin_flips))
+        V0 = self.V(SN)
+
+        return SN/(1+self.risk_free_rate)**T, V0/(1+self.risk_free_rate)**T
         
 
 

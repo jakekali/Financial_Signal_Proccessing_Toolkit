@@ -1,4 +1,10 @@
+import numpy as np
+
 class simulation:
+    
+    isEU = True
+    isCall = True
+
     def __init__(self, up_factor, down_factor, risk_free_rate, S0):
         '''
         :param up_factor: The up factor
@@ -43,10 +49,11 @@ class simulation:
                 return self.put(S)
 
     def EU_call(self, S1):
-        return max(0, S1 - self.strike)
+        return np.maximum(np.zeros(np.size(S1 - self.strike)), S1 - self.strike)
+
     
     def EU_put(self, S1):
-        return max(0, self.strike - S1)
+        return np.maximum(np.zeros(np.size(self.strike - S1)), self.strike - S1)
 
     def call(self, S1):
         return S1 - self.strike
