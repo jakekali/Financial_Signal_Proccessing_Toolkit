@@ -1,6 +1,8 @@
 import numpy as np 
 import sys
-from simulation import simulation
+sys.path.append("/home/jacob/code/ECE-478-FSP/FSP-Toolkit/fsp/")
+sys.path.append("../fsp/")
+from simulation import *
 
 class MonteCarlo(simulation):
     '''
