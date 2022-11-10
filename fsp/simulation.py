@@ -72,7 +72,7 @@ class simulation:
     def stockPrice(self, T, H):
         '''
         Compute the stock price at time T
-        :param T: The number of periods (the number of coin flips)
+        :param T: The number of tails
         :param H: The number of heads
         :return: The stock price at time T
         '''
@@ -121,3 +121,18 @@ class simulation:
         for i in range(len(paths)):
             paths[i] = [int(s) for s in paths[i]]
         return paths
+
+    @staticmethod
+    def generateRandomPaths(maxPathLength=10, numPaths=10, p=0.5):
+        '''
+        Generate all the possible paths
+
+        :param maxPathLength: The maximum path length to consider
+        :param numPaths: The number of paths to generate
+        :param p: The probability of heads
+        :return: An array of all the possible paths
+        '''
+        paths = np.random.choice([0, 1], size=(numPaths, maxPathLength), p = [1-p, p])
+        return paths
+
+        

@@ -15,7 +15,7 @@ class MonteCarlo(simulation):
         else:
             self.rng = rng
 
-    def simulatePathDependent(self, S0, T, M, p):
+    def simulatePathDependent(self, S0, T, M, p, max=False):
         '''
         Simulate the stock price
 
@@ -33,22 +33,27 @@ class MonteCarlo(simulation):
             raise ValueError('The number of periods must must be positive, integer')
         if(M < 0 or type(M) != int):
             raise ValueError('The number of simulations must be positive, integer')
-
-        coin_flips = self.rng.choice([0, 1], size=(T,M), p=[(1-p),p])
-        print(np.mean(coin_flips))
-
-        SN = self.stockPrice(len(coin_flips)-sum(coin_flips), sum(coin_flips))
-        V0 = self.V(SN)
-
-        return SN/(1+self.risk_free_rate)**T, V0/(1+self.risk_free_rate)**T
         
+        if(not max):
 
+            coin_flips = self.rng.choice([0, 1], size=(T,M), p=[(1-p),p])
 
+            SN = self.stockPrice(len(coin_flips)-sum(coin_flips), sum(coin_flips))
+            V0 = self.V(SN)
 
+            return SN/(1+self.risk_free_rate)**T, V0/(1+self.risk_free_rate)**T
 
+        else:
+            coin_flips = self.rng.choice([0, 1], size=(T,M), p=[(1-p),p])
+            S = np.zeros((T+1, M))
+            MAX = np.zeros((T+1, M))
 
+            S[0] = S0
+            for t in range(1, T+1):
+                S[t] = S[t-1]*self.up_factor**coin_flips[t-1]*self.down_factor**(1-coin_flips[t-1])
+                MAX[t] = np.maximum(MAX[t-1], S[t] * (1+self.risk_free_rate)**(T-t))
 
-
+            return S[-1]/(1+self.risk_free_rate)**T, (MAX[-1] - S[-1])/(1+self.risk_free_rate)**T
         
 
     def simulatePathIndependent(self, S0, T, M, p):
