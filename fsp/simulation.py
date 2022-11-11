@@ -11,10 +11,10 @@ class simulation:
         :param down_factor: The down factor
         :param risk_free_rate: The risk free rate
         '''
-        self.up_factor = up_factor
-        self.down_factor = down_factor
-        self.risk_free_rate = risk_free_rate
-        self.S0 = S0
+        self.up_factor = np.double(up_factor)
+        self.down_factor = np.double(down_factor)
+        self.risk_free_rate = np.double(risk_free_rate)
+        self.S0 = np.double(S0)
 
         if(risk_free_rate <= 0):
                 raise ValueError('the risk free rate must be greater than 0')
@@ -49,16 +49,20 @@ class simulation:
                 return self.put(S)
 
     def EU_call(self, S1):
+        S1 = np.double(S1)
         return np.maximum(np.zeros(np.size(S1 - self.strike)), S1 - self.strike)
 
     
     def EU_put(self, S1):
+        S1 = np.double(S1)
         return np.maximum(np.zeros(np.size(self.strike - S1)), self.strike - S1)
 
     def call(self, S1):
+        S1 = np.double(S1)
         return S1 - self.strike
 
     def put(self, S1):
+        S1 = np.double(S1)
         return self.strike - S1
 
 
@@ -76,6 +80,8 @@ class simulation:
         :param H: The number of heads
         :return: The stock price at time T
         '''
+        T = np.double(T)
+        H = np.double(H)
         return  self.S0 * (self.up_factor**H) * (self.down_factor**(T))
 
     def riskNeutralProbability(self):
@@ -117,7 +123,7 @@ class simulation:
         if maxPathLength == 1:
             return [[0], [1]]
 
-        paths = [('{0:0'+ str(maxPathLength) + 'b}').format(s) for s in range(maxPathLength**2)]
+        paths = [('{0:0'+ str(maxPathLength) + 'b}').format(s) for s in range(2**maxPathLength)]
         for i in range(len(paths)):
             paths[i] = [int(s) for s in paths[i]]
         return paths
@@ -134,5 +140,12 @@ class simulation:
         '''
         paths = np.random.choice([0, 1], size=(numPaths, maxPathLength), p = [1-p, p])
         return paths
+
+    def describe(self):
+        '''
+        Describe the simulation parameters
+        :return: A string describing the simulation
+        '''
+        return r"u: " + str(self.up_factor) + r" d: " + str(self.down_factor) + r" \n r: " + str(self.risk_free_rate) + " S0: " + str(self.S0) + " \n strike: " + str(self.strike) + " maturity: " + str(self.maturity) + " \n"
 
         

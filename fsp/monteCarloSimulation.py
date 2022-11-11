@@ -15,7 +15,7 @@ class MonteCarlo(simulation):
         else:
             self.rng = rng
 
-    def simulatePathDependent(self, S0, T, M, p, max=False):
+    def simulatePathDependent(self, S0, T, M, p, max=False, maxVal=0):
         '''
         Simulate the stock price
 
@@ -46,7 +46,7 @@ class MonteCarlo(simulation):
         else:
             coin_flips = self.rng.choice([0, 1], size=(T,M), p=[(1-p),p])
             S = np.zeros((T+1, M))
-            MAX = np.zeros((T+1, M))
+            MAX = np.zeros((T+1, M)).fill(maxVal)
 
             S[0] = S0
             for t in range(1, T+1):
