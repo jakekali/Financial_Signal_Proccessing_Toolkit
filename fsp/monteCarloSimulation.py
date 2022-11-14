@@ -23,6 +23,9 @@ class MonteCarlo(simulation):
         :param T: The number of periods
         :param M: The number of simulations
         :param p: The probability of the stock going up
+        :param max: If the value function is the maximum of the stock price minus the final stock price, set this to True
+        :param maxVal: An optional parameter to set the maximum value of the stock price, (ie to include past information about the stock)
+        :return: a tuple of the simulated stock price and the value function
 
         :return: A (T, N) array of simulated stock prices, at each time step, at the value at each time step
         '''
@@ -46,7 +49,7 @@ class MonteCarlo(simulation):
         else:
             coin_flips = self.rng.choice([0, 1], size=(T,M), p=[(1-p),p])
             S = np.zeros((T+1, M))
-            MAX = np.zeros((T+1, M)).fill(maxVal)
+            MAX = np.ones((T+1, M)) * maxVal
 
             S[0] = S0
             for t in range(1, T+1):

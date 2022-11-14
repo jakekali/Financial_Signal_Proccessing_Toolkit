@@ -25,6 +25,14 @@ class simulation:
         return None
 
     def setOption(self, isEU, isCall, strike, maturity):
+        '''
+        Set the option type, strike and maturity
+        :param isEU: True if the option is European
+        :param isCall: True if the option is a call
+        :param strike: The strike price
+        :param maturity: The maturity
+        '''
+
         self.isEU = isEU
         self.isCall = isCall
         self.strike = strike
