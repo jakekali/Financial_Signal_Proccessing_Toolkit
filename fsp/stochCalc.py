@@ -22,8 +22,9 @@ class SDE:
         self.Beta = Beta 
         self.Gamma = Gamma
         self.badPathCounter = 0
+        self.badPathsSample = []
 
-    def getValidPath(self):
+    def getValidPath(self, greaterThanZero=True, stopBelowZero=True):
         
         W = np.random.standard_normal(size=self.N+1)
         W = np.cumsum(W)*np.sqrt(self.lambda_t)
@@ -38,13 +39,17 @@ class SDE:
             driven =+ self.Gamma(X[n-1]) *(W[n]-W[n-1])
             X[n] = X[n-1] + drift + driven
 
-            if(X[n] < 0):
+            if((X[n] < 0 and stopBelowZero) or X[n] == 0):
                 self.badPathCounter += 1
                 Warning("A path with Negative X0 was generated, retrying. BAD PATH #", self.badPathCounter)
-                return self.getValidPath()
-
+                self.badPathsSample.append(X)
+                if greaterThanZero:
+                    return self.getValidPath()
+                return X
         return X
 
-    def getValidPaths(self, M=1000):
+    def getValidPaths(self, M=1000, greaterThanZero=True, stopBelowZero=True):
+        self.badPathCounter = 0
         for _ in range(M):
-            yield self.getValidPath()
+            path = self.getValidPath(greaterThanZero=greaterThanZero,stopBelowZero=stopBelowZero)
+            yield path
