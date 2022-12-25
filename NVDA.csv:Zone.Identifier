@@ -1,0 +1,4 @@
+[ZoneTransfer]
+ZoneId=3
+ReferrerUrl=https://finance.yahoo.com/quote/NVDA/history?period1=1608854400&period2=1671926400&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true
+HostUrl=https://query1.finance.yahoo.com/v7/finance/download/NVDA?period1=1640427658&period2=1671963658&interval=1d&events=history&includeAdjustedClose=true

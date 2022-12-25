@@ -30,6 +30,7 @@ def get_stock_data(tickers, start, end, cache=True):
     stocks = pd.DataFrame()
     for tick in tickers:
         # Pull Data From Yahoo Finance
+        print(tick)
         stock= web.DataReader(tick,'yahoo',start,end).drop(columns=['High','Low','Open','Volume'])
         # Calculate Daily Returns
         stock= stock.pct_change().dropna()
